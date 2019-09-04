@@ -1,12 +1,41 @@
 import * as Yup from 'yup';
-import { isBefore, startOfHour, parseISO } from 'date-fns';
+import { Op } from 'sequelize';
+import {
+  isBefore,
+  startOfHour,
+  parseISO,
+  startOfDay,
+  endOfDay,
+} from 'date-fns';
 
 import Meetup from '../models/Meetup';
+import User from '../models/User';
 
 class MeetupController {
   async index(req, res) {
+    const where = {};
+    const { page = 1 } = req.query;
+
+    if (req.query.date) {
+      const searchDate = parseISO(req.query.date);
+
+      where.date = {
+        [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)],
+      };
+    }
+
     const meetups = await Meetup.findAll({
-      where: { user_id: req.userId },
+      where,
+      limit: 10,
+      offset: (page - 1) * 10,
+      attributes: ['title', 'description', 'location', 'date'],
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['name', 'email'],
+        },
+      ],
     });
 
     return res.json(meetups);
@@ -42,28 +71,34 @@ class MeetupController {
 
   async update(req, res) {
     const schema = Yup.object().shape({
-      title: Yup.string().required(),
-      description: Yup.string().required(),
-      location: Yup.string().required(),
-      date: Yup.date().required(),
+      title: Yup.string(),
+      description: Yup.string(),
+      location: Yup.string(),
+      date: Yup.date(),
     });
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails.' });
     }
 
-    const hourStart = startOfHour(parseISO(req.body.date));
+    if (req.body.date) {
+      const hourStart = startOfHour(parseISO(req.body.date));
 
-    if (isBefore(hourStart, new Date())) {
-      return res
-        .status(400)
-        .json({ error: 'It does not back time travel permitted :)' });
+      if (isBefore(hourStart, new Date())) {
+        return res
+          .status(400)
+          .json({ error: 'It does not back time travel permitted :)' });
+      }
     }
 
     const meetup = await Meetup.findByPk(req.params.meetupId);
 
     if (!meetup) {
       return res.status(400).json({ error: 'Meetup does not exists.' });
+    }
+
+    if (meetup.past) {
+      return res.status(400).json({ error: 'Meetup already happened.' });
     }
 
     if (meetup.user_id !== req.userId) {
@@ -93,12 +128,8 @@ class MeetupController {
       return res.status(401).json({ error: 'Meetup organized by other user.' });
     }
 
-    const hourStart = startOfHour(meetup.date);
-
-    if (isBefore(hourStart, new Date())) {
-      return res
-        .status(400)
-        .json({ error: 'It does not back time travel permitted :)' });
+    if (meetup.past) {
+      return res.status(400).json({ error: 'Meetup already happened.' });
     }
 
     await meetup.destroy();

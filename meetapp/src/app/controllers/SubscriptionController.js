@@ -1,36 +1,50 @@
-import * as Yup from 'yup';
-// import { isBefore, startOfHour, parseISO } from 'date-fns';
-
+import { Op } from 'sequelize';
 import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
+import User from '../models/User';
+import Queue from '../../lib/Queue';
+
+import SubscribeMail from '../jobs/SubscribeMail';
 
 class SubscriptionController {
   async index(req, res) {
     const subscribedMeetups = await Subscription.findAll({
       where: { user_id: req.userId },
-      attributes: [],
+      attributes: ['id'],
       include: [
         {
           model: Meetup,
           as: 'meetup',
           attributes: ['title', 'description', 'location', 'date'],
+          where: {
+            date: {
+              [Op.gt]: new Date(),
+            },
+          },
+          required: true,
         },
       ],
+      order: [['meetup', 'date']],
     });
 
     return res.json(subscribedMeetups);
   }
 
   async store(req, res) {
-    const schema = Yup.object().shape({
-      meetup_id: Yup.number().required(),
+    const user = await User.findByPk(req.userId);
+    const meetup = await Meetup.findByPk(req.params.meetupId, {
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['name', 'email'],
+        },
+      ],
     });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails.' });
+    if (!meetup) {
+      return res.status(404).json({ error: 'The meetup does not exists.' });
     }
-
-    const meetup = await Meetup.findByPk(req.body.meetup_id);
 
     if (meetup.past) {
       return res.status(400).json({ error: 'Meetup already happened.' });
@@ -42,18 +56,36 @@ class SubscriptionController {
         .json({ error: 'You can not subscribe in, you are the organizer!' });
     }
 
-    const meetupsSubscribed = await Subscription.findAll({
+    const checkDate = await Subscription.findOne({
       where: { user_id: req.userId },
       include: [
         {
           model: Meetup,
           as: 'meetup',
-          attributes: ['date'],
+          where: {
+            date: meetup.date,
+          },
         },
       ],
     });
 
-    return res.json(meetupsSubscribed);
+    if (checkDate) {
+      return res.status(400).json({
+        error: 'You already subscribed in other meetup with same hour.',
+      });
+    }
+
+    const subscription = await Subscription.create({
+      meetup_id: meetup.id,
+      user_id: req.userId,
+    });
+
+    await Queue.add(SubscribeMail.key, {
+      meetup,
+      user,
+    });
+
+    return res.json(subscription);
   }
 }
 
