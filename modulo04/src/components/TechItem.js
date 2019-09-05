@@ -16,7 +16,7 @@ TechItem.defaultProps = {
   tech: 'Oculto',
 };
 
-TecheItem.propTypes = {
+TechItem.propTypes = {
   tech: PropTypes.string,
   onDelete: PropTypes.func.isRequired,
 };
