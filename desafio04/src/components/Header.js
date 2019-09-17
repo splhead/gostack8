@@ -7,8 +7,12 @@ export default class components extends Component {
     return (
       <header>
         <nav>
-          <p>facebook</p>
-          <span>Meu perfil</span>
+          <img src="https://i.imgur.com/KDIDiSE.png" alt="Logo" />
+
+          <div className="user">
+            <span>Meu perfil</span>
+            <i className="material-icons">account_circle</i>
+          </div>
         </nav>
       </header>
     );

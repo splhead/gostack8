@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 * {
   margin: 0;
   padding: 0;
@@ -18,15 +20,112 @@ body {
 
 header {
   background: #4a90e2;
-  color: #fff;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 header nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  height: 64px;
+  padding: 0 42px;
+  color: #fff;
   min-width: 980px;
-  padding: 0 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav img {
+  height: 24px;
+}
+
+nav .user {
+  display: flex;
+  align-items: center;
+}
+
+nav .user span {
+  font-size: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header nav .user i {
+  margin-left: 20px;
+}
+
+.postlist {
+  width: 700px;
+  margin: 0 auto 20px;
+}
+
+.post {
+  padding: 20px;
+  margin-top: 20px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  line-height: 20px;
+  color: #3e3e3e;
+}
+
+.postheader {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  height: 32px;
+  width: 32px;
+  min-height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.postheader > div {
+  display: flex;
+  flex-direction: column;
+  color: #9a9a9a;
+  line-height: 14px;
+  font-size: 11px;
+}
+
+.postheader > div span:first-child {
+  font-size: 14px;
+  color: #4a4a4a;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.postcontent {
+  font-size: 14px;
+  margin-top: 15px;
+}
+
+.postcomments {
+  margin: 20px 0;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #eeeeee;
+}
+
+.comment {
+  margin: 20px 0;
+  display: flex;
+}
+
+.comment span {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.comment p {
+  background: rgb(235, 235, 235);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
 }
