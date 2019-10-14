@@ -1,15 +1,15 @@
 import React from 'react';
-import {Text, StatusBar} from 'react-native';
+import { StatusBar } from 'react-native';
 
 import './config/ReactotronConfig';
 
-console.tron.log('hola');
+import Routes from './routes';
 
 const App: () => React$Node = () => {
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <Text> Olá! novamente</Text>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <Routes />
     </>
   );
 };
