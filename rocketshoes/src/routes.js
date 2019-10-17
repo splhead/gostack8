@@ -16,6 +16,7 @@ const Routes = createAppContainer(
     {
       // headerLayoutPreset: 'center',
       headerBackTitleVisible: false,
+      initialRouteName: 'Cart',
       defaultNavigationOptions: {
         headerTitle: <Header />,
         headerStyle: {

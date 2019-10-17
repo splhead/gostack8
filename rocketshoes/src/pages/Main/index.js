@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import formatPrice from '../../util/format';
 import api from '../../services/api';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import {
   Container,
@@ -22,6 +24,16 @@ import {
 export default function Main() {
   const [products, setProducts] = useState([]);
 
+  const amount = useSelector(state =>
+    state.cart.reduce((sumAmount, product) => {
+      sumAmount[product.id] = product.amount;
+
+      return sumAmount;
+    }, {})
+  );
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     async function getProducts() {
       const response = await api.get('products');
@@ -37,26 +49,33 @@ export default function Main() {
     getProducts();
   }, []);
 
-  const renderProduct = useCallback(({ item }) => {
-    return (
-      <Product key={item.id}>
-        <ProductImage
-          source={{
-            uri: item.image,
-          }}
-        />
-        <ProductTitle>{item.title}</ProductTitle>
-        <ProductPrice>{item.priceFormatted}</ProductPrice>
-        <AddButton>
-          <ProductAmount>
-            <Icon name="add-shopping-cart" color="#FFF" size={20} />
-            <ProductAmountText>1</ProductAmountText>
-          </ProductAmount>
-          <AddButtonText>ADICIONAR</AddButtonText>
-        </AddButton>
-      </Product>
-    );
-  }, []);
+  const renderProduct = useCallback(
+    ({ item }) => {
+      function handleAddToCart(id) {
+        dispatch(CartActions.addToCartRequest(id));
+      }
+
+      return (
+        <Product key={item.id}>
+          <ProductImage
+            source={{
+              uri: item.image,
+            }}
+          />
+          <ProductTitle>{item.title}</ProductTitle>
+          <ProductPrice>{item.priceFormatted}</ProductPrice>
+          <AddButton onPress={() => handleAddToCart(item.id)}>
+            <ProductAmount>
+              <Icon name="add-shopping-cart" color="#FFF" size={20} />
+              <ProductAmountText>{amount[item.id] || 0}</ProductAmountText>
+            </ProductAmount>
+            <AddButtonText>ADICIONAR</AddButtonText>
+          </AddButton>
+        </Product>
+      );
+    },
+    [amount, dispatch]
+  );
 
   return (
     <Container>
