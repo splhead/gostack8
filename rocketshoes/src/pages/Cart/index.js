@@ -1,5 +1,11 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import * as CartActions from '../../store/modules/cart/actions';
+
+import formatPrice from '../../util/format';
 
 import {
   Container,
@@ -27,27 +33,59 @@ import {
 export default function Cart() {
   const cartSize = useSelector(state => state.cart.length);
 
+  const products = useSelector(state =>
+    state.cart.map(product => ({
+      ...product,
+      subtotal: formatPrice(product.price * product.amount),
+      priceFormatted: formatPrice(product.price),
+    }))
+  );
+
+  const dispatch = useDispatch();
+
+  function handleRemoveFromCart(id) {
+    dispatch(CartActions.removeFromCartRequest(id));
+  }
+
+  // console.tron.log(cartSize);
+
   return (
     <Container>
-      {cartSize.length ? (
+      {cartSize ? (
         <>
           <Products>
-            <Product>
-              <ProductInfo>
-                <ProductImage />
-                <ProductDetails>
-                  <ProductTitle>Tenis da hora</ProductTitle>
-                  <ProductPrice>R$ 322,00</ProductPrice>
-                </ProductDetails>
-                <ProductDelete />
-              </ProductInfo>
-              <ProductControls>
-                <ProductControlButton>icon</ProductControlButton>
-                <ProductAmount>2</ProductAmount>
-                <ProductControlButton>icon</ProductControlButton>
-                <ProductSubtotal>R$ 644,00</ProductSubtotal>
-              </ProductControls>
-            </Product>
+            {products.map(product => (
+              <Product>
+                <ProductInfo>
+                  <ProductImage
+                    source={{
+                      uri: product.image,
+                    }}
+                  />
+                  <ProductDetails>
+                    <ProductTitle>{product.title}</ProductTitle>
+                    <ProductPrice>{product.priceFormatted}</ProductPrice>
+                  </ProductDetails>
+                  <ProductDelete onPress={() => handleRemoveFromCart(item.id)}>
+                    <Icon name="delete-forever" color="#7159c1" size={24} />
+                  </ProductDelete>
+                </ProductInfo>
+                <ProductControls>
+                  <ProductControlButton>
+                    <Icon
+                      name="remove-circle-outline"
+                      color="#7159c1"
+                      size={24}
+                    />
+                  </ProductControlButton>
+                  <ProductAmount>{product.amount || 0}</ProductAmount>
+                  <ProductControlButton>
+                    <Icon name="add-circle-outline" color="#7159c1" size={24} />
+                  </ProductControlButton>
+                  <ProductSubtotal>{product.subtotal}</ProductSubtotal>
+                </ProductControls>
+              </Product>
+            ))}
           </Products>
           <TotalContainer>
             <TotalText>TOTAL</TotalText>
@@ -59,6 +97,7 @@ export default function Cart() {
         </>
       ) : (
         <EmptyContainer>
+          <Icon name="remove-shopping-cart" color="#ccc" size={35} />
           <EmptyText>Seu carrinho está vazio.</EmptyText>
         </EmptyContainer>
       )}
