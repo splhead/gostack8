@@ -12,16 +12,17 @@ export function addToCartSuccess(product) {
   };
 }
 
-export function removeFromCartRequest(id) {
-  return {
-    type: '@cart/REMOVE_REQUEST',
-    id,
-  };
-}
-
 export function removeFromCartSuccess(id) {
   return {
     type: '@cart/REMOVE_SUCCESS',
     id,
   };
+}
+
+export function updateAmountRequest(id, amount) {
+  return { type: '@cart/UPDATE_AMOUNT_REQUEST', id, amount };
+}
+
+export function updateAmountSuccess(id, amount) {
+  return { type: '@cart/UPDATE_AMOUNT_SUCCESS', id, amount };
 }

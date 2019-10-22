@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Root } from 'popup-ui';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -41,66 +42,88 @@ export default function Cart() {
     }))
   );
 
+  const cart = useSelector(state => ({
+    total: formatPrice(
+      state.cart.reduce((total, product) => {
+        return total + product.price * product.amount;
+      }, 0)
+    ),
+  }));
+
   const dispatch = useDispatch();
 
   function handleRemoveFromCart(id) {
-    dispatch(CartActions.removeFromCartRequest(id));
+    dispatch(CartActions.removeFromCartSuccess(id));
   }
 
-  // console.tron.log(cartSize);
+  function increment(product) {
+    dispatch(CartActions.updateAmountRequest(product.id, product.amount + 1));
+  }
+
+  function decrement(product) {
+    dispatch(CartActions.updateAmountRequest(product.id, product.amount - 1));
+  }
 
   return (
-    <Container>
-      {cartSize ? (
-        <>
-          <Products>
-            {products.map(product => (
-              <Product>
-                <ProductInfo>
-                  <ProductImage
-                    source={{
-                      uri: product.image,
-                    }}
-                  />
-                  <ProductDetails>
-                    <ProductTitle>{product.title}</ProductTitle>
-                    <ProductPrice>{product.priceFormatted}</ProductPrice>
-                  </ProductDetails>
-                  <ProductDelete onPress={() => handleRemoveFromCart(item.id)}>
-                    <Icon name="delete-forever" color="#7159c1" size={24} />
-                  </ProductDelete>
-                </ProductInfo>
-                <ProductControls>
-                  <ProductControlButton>
-                    <Icon
-                      name="remove-circle-outline"
-                      color="#7159c1"
-                      size={24}
+    <Root>
+      <Container>
+        {cartSize ? (
+          <>
+            <Products>
+              {products.map(product => (
+                <Product key={product.id}>
+                  <ProductInfo>
+                    <ProductImage
+                      source={{
+                        uri: product.image,
+                      }}
                     />
-                  </ProductControlButton>
-                  <ProductAmount>{product.amount || 0}</ProductAmount>
-                  <ProductControlButton>
-                    <Icon name="add-circle-outline" color="#7159c1" size={24} />
-                  </ProductControlButton>
-                  <ProductSubtotal>{product.subtotal}</ProductSubtotal>
-                </ProductControls>
-              </Product>
-            ))}
-          </Products>
-          <TotalContainer>
-            <TotalText>TOTAL</TotalText>
-            <TotalAmount>R$ 644,00</TotalAmount>
-            <Order>
-              <OrderText>FINALIZAR PEDIDO</OrderText>
-            </Order>
-          </TotalContainer>
-        </>
-      ) : (
-        <EmptyContainer>
-          <Icon name="remove-shopping-cart" color="#ccc" size={35} />
-          <EmptyText>Seu carrinho está vazio.</EmptyText>
-        </EmptyContainer>
-      )}
-    </Container>
+                    <ProductDetails>
+                      <ProductTitle>{product.title}</ProductTitle>
+                      <ProductPrice>{product.priceFormatted}</ProductPrice>
+                    </ProductDetails>
+                    <ProductDelete
+                      onPress={() => handleRemoveFromCart(product.id)}
+                    >
+                      <Icon name="delete-forever" color="#7159c1" size={24} />
+                    </ProductDelete>
+                  </ProductInfo>
+                  <ProductControls>
+                    <ProductControlButton onPress={() => decrement(product)}>
+                      <Icon
+                        name="remove-circle-outline"
+                        color="#7159c1"
+                        size={24}
+                      />
+                    </ProductControlButton>
+                    <ProductAmount>{product.amount}</ProductAmount>
+                    <ProductControlButton onPress={() => increment(product)}>
+                      <Icon
+                        name="add-circle-outline"
+                        color="#7159c1"
+                        size={24}
+                      />
+                    </ProductControlButton>
+                    <ProductSubtotal>{product.subtotal}</ProductSubtotal>
+                  </ProductControls>
+                </Product>
+              ))}
+            </Products>
+            <TotalContainer>
+              <TotalText>TOTAL</TotalText>
+              <TotalAmount>{cart.total}</TotalAmount>
+              <Order>
+                <OrderText>FINALIZAR PEDIDO</OrderText>
+              </Order>
+            </TotalContainer>
+          </>
+        ) : (
+          <EmptyContainer>
+            <Icon name="remove-shopping-cart" color="#ccc" size={35} />
+            <EmptyText>Seu carrinho está vazio.</EmptyText>
+          </EmptyContainer>
+        )}
+      </Container>
+    </Root>
   );
 }

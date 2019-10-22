@@ -5365,6 +5365,11 @@ polished@^3.4.1:
   dependencies:
     "@babel/runtime" "^7.4.5"
 
+popup-ui@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/popup-ui/-/popup-ui-1.0.5.tgz#d364c55d2addd07c9cfa10a1509d76a9f9b59587"
+  integrity sha512-nW5cagMwoQMvUIc3Tr7/9ttYP4plknZsUHurtV9f6UQWcj462vsgB4E9DxX+0P0NoGCxKP+HIFYcv8AJAwy4aA==
+
 posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"

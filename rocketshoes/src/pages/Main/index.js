@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
+import { Root } from 'popup-ui';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -78,14 +79,16 @@ export default function Main() {
   );
 
   return (
-    <Container>
-      <FlatList
-        horizontal
-        data={products}
-        keyExtractor={item => String(item.id)}
-        renderItem={renderProduct}
-      />
-    </Container>
+    <Root>
+      <Container>
+        <FlatList
+          horizontal
+          data={products}
+          keyExtractor={item => String(item.id)}
+          renderItem={renderProduct}
+        />
+      </Container>
+    </Root>
   );
 }
 
