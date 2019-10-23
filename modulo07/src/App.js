@@ -19,8 +19,8 @@ function App() {
         <Header />
         <Routes />
         <GlobalStyles />
-        <ToastContainer autoClose={3000} />{' '}
-      </Router>{' '}
+        <ToastContainer autoClose={3000} />
+      </Router>
     </Provider>
   );
 }
